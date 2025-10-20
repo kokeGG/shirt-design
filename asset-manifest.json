@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/shirt-design/static/css/main.a907e692.css",
+    "main.js": "/shirt-design/static/js/main.9815ecde.js",
+    "static/js/453.3cab3163.chunk.js": "/shirt-design/static/js/453.3cab3163.chunk.js",
+    "index.html": "/shirt-design/index.html",
+    "main.a907e692.css.map": "/shirt-design/static/css/main.a907e692.css.map",
+    "main.9815ecde.js.map": "/shirt-design/static/js/main.9815ecde.js.map",
+    "453.3cab3163.chunk.js.map": "/shirt-design/static/js/453.3cab3163.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a907e692.css",
+    "static/js/main.9815ecde.js"
+  ]
+}
