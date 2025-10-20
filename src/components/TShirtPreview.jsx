@@ -15,7 +15,7 @@ export default function TShirtPreview({
   const getShirtImage = () => {
     const color = shirtColor === 'white' ? 'blanca' : 'negra';
     const side = currentSide === 'front' ? 'frente' : 'atras';
-    return `/images/playera-${color}-${side}.jpeg`;
+    return `${process.env.PUBLIC_URL}/images/playera-${color}-${side}.jpeg`;
   };
 
   return (
