@@ -5,6 +5,10 @@ import SizeControl from "./components/SizeControl";
 import PositionControl from "./components/PositionControl";
 import TShirtPreview from "./components/TShirtPreview";
 import ResetButton from "./components/ResetButton";
+import Cart from "./components/Cart";
+import CheckoutForm from "./components/CheckoutForm";
+import PaymentSuccess from "./components/PaymentSuccess";
+import AddToCartButton from "./components/AddToCartButton";
 
 export default function App() {
   const [shirtColor, setShirtColor] = useState("white");
@@ -22,6 +26,16 @@ export default function App() {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Estados del carrito y checkout
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState(null);
+
+  // Precio base de las playeras
+  const BASE_PRICE = 250; // MXN
 
   // Obtener estados del lado actual
   const currentImage = currentSide === "front" ? frontImage : backImage;
@@ -79,10 +93,25 @@ export default function App() {
     });
   };
 
+  // const handleMouseMove = (e) => {
+  //   if (isDragging) {
+  //     const newX = Math.max(0, Math.min(100, (e.clientX - dragStart.x) / 3));
+  //     const newY = Math.max(0, Math.min(100, (e.clientY - dragStart.y) / 4));
+  //     setCurrentPosition({ x: newX, y: newY });
+  //   }
+  // };
+
   const handleMouseMove = (e) => {
     if (isDragging) {
-      const newX = Math.max(0, Math.min(100, (e.clientX - dragStart.x) / 3));
-      const newY = Math.max(0, Math.min(100, (e.clientY - dragStart.y) / 4));
+      const deltaX = e.clientX - dragStart.mouseX;
+      const deltaY = e.clientY - dragStart.mouseY;
+      
+      const percentX = (deltaX / 400) * 100;
+      const percentY = (deltaY / 500) * 100;
+      
+      const newX = Math.max(0, Math.min(100, dragStart.x + percentX));
+      const newY = Math.max(0, Math.min(100, dragStart.y + percentY));
+      
       setCurrentPosition({ x: newX, y: newY });
     }
   };
@@ -91,12 +120,96 @@ export default function App() {
     setIsDragging(false);
   };
 
+  // Función para agregar al carrito
+  const handleAddToCart = () => {
+    const newItem = {
+      id: Date.now(),
+      color: shirtColor,
+      frontImage: frontImage,
+      backImage: backImage,
+      frontSize: frontSize,
+      frontPosition: frontPosition,
+      backSize: backSize,
+      backPosition: backPosition,
+      price: BASE_PRICE
+    };
+    setCart([...cart, newItem]);
+        setIsCartOpen(true);
+
+    // Opcional: limpiar el diseño actual
+    setFrontImage(null);
+    setBackImage(null);
+    setFrontSize(150);
+    setBackSize(150);
+    setFrontPosition({ x: 50, y: 40 });
+    setBackPosition({ x: 50, y: 40 });
+  };
+
+  // Función para remover del carrito
+  const handleRemoveFromCart = (index) => {
+    setCart(cart.filter((_, i) => i !== index));
+  };
+
+  // Función para proceder al checkout
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+
+  // Función para procesar el pago (simulado)
+  const handlePayment = (formData) => {
+    // Aquí integrarías Stripe u otra pasarela
+    console.log('Procesando pago con:', formData);
+    console.log('Carrito:', cart);
+
+    // Simular procesamiento
+    setTimeout(() => {
+      const orderNum = Math.floor(100000 + Math.random() * 900000);
+      setOrderNumber(orderNum);
+      setIsCheckoutOpen(false);
+      setShowSuccess(true);
+      setCart([]); // Vaciar carrito
+    }, 1000);
+  };
+
+  // Cerrar modal de éxito
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
+    setOrderNumber(null);
+  };
+  
+
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
+      {/* Carrito flotante */}
+      <Cart
+        cart={cart}
+        onRemoveItem={handleRemoveFromCart}
+        onCheckout={handleCheckout}
+        isOpen={isCartOpen}
+        onToggle={() => setIsCartOpen(!isCartOpen)}
+      />
+      {/* Modal de Checkout */}
+      {isCheckoutOpen && (
+        <CheckoutForm
+          cart={cart}
+          onClose={() => setIsCheckoutOpen(false)}
+          onSubmit={handlePayment}
+        />
+      )}
+
+      {/* Modal de Éxito */}
+      {showSuccess && (
+        <PaymentSuccess
+          orderNumber={orderNumber}
+          onClose={handleCloseSuccess}
+        />
+      )}
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 mb-2 text-center">
           🎨 Canelito Design 😺
@@ -130,6 +243,23 @@ export default function App() {
                 <ResetButton onReset={handleReset} currentSide={currentSide} />
               </>
             )}
+
+            {/* Botón Agregar al Carrito */}
+            <div className="pt-4 border-t">
+              <div className="mb-4">
+                <p className="text-2xl font-bold text-gray-800 text-center">
+                  ${BASE_PRICE} MXN
+                </p>
+                <p className="text-sm text-gray-500 text-center">
+                  Precio por playera personalizada
+                </p>
+              </div>
+              <AddToCartButton
+                onAddToCart={handleAddToCart}
+                frontImage={frontImage}
+                backImage={backImage}
+              />
+            </div>
 
             {/* Resumen de diseños */}
             <div className="pt-4 border-t border-gray-200">
