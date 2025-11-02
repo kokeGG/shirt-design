@@ -1,51 +1,50 @@
-import React, { useState } from "react";
-import ColorSelector from "./components/ColorSelector";
-import ImageUploader from "./components/ImageUploader";
-import SizeControl from "./components/SizeControl";
-import PositionControl from "./components/PositionControl";
-import TShirtPreview from "./components/TShirtPreview";
-import ResetButton from "./components/ResetButton";
-import Cart from "./components/Cart";
-import CheckoutForm from "./components/CheckoutForm";
-import PaymentSuccess from "./components/PaymentSuccess";
-import AddToCartButton from "./components/AddToCartButton";
+import React, { useState } from 'react';
+import ColorSelector from './components/ColorSelector';
+import ImageUploader from './components/ImageUploader';
+import SizeControl from './components/SizeControl';
+import PositionControl from './components/PositionControl';
+import TShirtPreview from './components/TShirtPreview';
+import ResetButton from './components/ResetButton';
+import AddToCartButton from './components/AddToCartButton';
+import Cart from './components/Cart';
+import CheckoutForm from './components/CheckoutForm';
 
 export default function App() {
-  const [shirtColor, setShirtColor] = useState("white");
-  const [currentSide, setCurrentSide] = useState("front"); // 'front' o 'back'
+  // TU NÚMERO DE WHATSAPP (formato internacional sin +)
+  const WHATSAPP_NUMBER = '527441653195'; // ⚠️ CAMBIA ESTO POR TU NÚMERO
 
+  const [shirtColor, setShirtColor] = useState('white');
+  const [currentSide, setCurrentSide] = useState('front');
+  
   // Estados para el frente
   const [frontImage, setFrontImage] = useState(null);
   const [frontSize, setFrontSize] = useState(150);
   const [frontPosition, setFrontPosition] = useState({ x: 50, y: 40 });
-
+  
   // Estados para atrás
   const [backImage, setBackImage] = useState(null);
   const [backSize, setBackSize] = useState(150);
   const [backPosition, setBackPosition] = useState({ x: 50, y: 40 });
-
+  
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Estados del carrito y checkout
+  // Estados del carrito
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [orderNumber, setOrderNumber] = useState(null);
 
   // Precio base de las playeras
-  const BASE_PRICE = 250; // MXN
+  const BASE_PRICE = 120; // MXN
 
   // Obtener estados del lado actual
-  const currentImage = currentSide === "front" ? frontImage : backImage;
-  const currentSize = currentSide === "front" ? frontSize : backSize;
-  const currentPosition =
-    currentSide === "front" ? frontPosition : backPosition;
+  const currentImage = currentSide === 'front' ? frontImage : backImage;
+  const currentSize = currentSide === 'front' ? frontSize : backSize;
+  const currentPosition = currentSide === 'front' ? frontPosition : backPosition;
 
   // Funciones para actualizar el lado actual
   const setCurrentImage = (img) => {
-    if (currentSide === "front") {
+    if (currentSide === 'front') {
       setFrontImage(img);
     } else {
       setBackImage(img);
@@ -53,7 +52,7 @@ export default function App() {
   };
 
   const setCurrentSize = (size) => {
-    if (currentSide === "front") {
+    if (currentSide === 'front') {
       setFrontSize(size);
     } else {
       setBackSize(size);
@@ -61,7 +60,7 @@ export default function App() {
   };
 
   const setCurrentPosition = (pos) => {
-    if (currentSide === "front") {
+    if (currentSide === 'front') {
       setFrontPosition(pos);
     } else {
       setBackPosition(pos);
@@ -69,11 +68,11 @@ export default function App() {
   };
 
   const handleRotate = () => {
-    setCurrentSide(currentSide === "front" ? "back" : "front");
+    setCurrentSide(currentSide === 'front' ? 'back' : 'front');
   };
 
   const handleReset = () => {
-    if (currentSide === "front") {
+    if (currentSide === 'front') {
       setFrontImage(null);
       setFrontSize(150);
       setFrontPosition({ x: 50, y: 40 });
@@ -88,18 +87,12 @@ export default function App() {
     e.preventDefault();
     setIsDragging(true);
     setDragStart({
-      x: e.clientX - currentPosition.x,
-      y: e.clientY - currentPosition.y,
+      x: currentPosition.x,
+      y: currentPosition.y,
+      mouseX: e.clientX,
+      mouseY: e.clientY
     });
   };
-
-  // const handleMouseMove = (e) => {
-  //   if (isDragging) {
-  //     const newX = Math.max(0, Math.min(100, (e.clientX - dragStart.x) / 3));
-  //     const newY = Math.max(0, Math.min(100, (e.clientY - dragStart.y) / 4));
-  //     setCurrentPosition({ x: newX, y: newY });
-  //   }
-  // };
 
   const handleMouseMove = (e) => {
     if (isDragging) {
@@ -133,8 +126,9 @@ export default function App() {
       backPosition: backPosition,
       price: BASE_PRICE
     };
+
     setCart([...cart, newItem]);
-        setIsCartOpen(true);
+    setIsCartOpen(true);
 
     // Opcional: limpiar el diseño actual
     setFrontImage(null);
@@ -156,32 +150,57 @@ export default function App() {
     setIsCheckoutOpen(true);
   };
 
-
-  // Función para procesar el pago (simulado)
-  const handlePayment = (formData) => {
-    // Aquí integrarías Stripe u otra pasarela
-    console.log('Procesando pago con:', formData);
-    console.log('Carrito:', cart);
-
-    // Simular procesamiento
-    setTimeout(() => {
-      const orderNum = Math.floor(100000 + Math.random() * 900000);
-      setOrderNumber(orderNum);
-      setIsCheckoutOpen(false);
-      setShowSuccess(true);
-      setCart([]); // Vaciar carrito
-    }, 1000);
-  };
-
-  // Cerrar modal de éxito
-  const handleCloseSuccess = () => {
-    setShowSuccess(false);
-    setOrderNumber(null);
-  };
+  // Función para enviar pedido por WhatsApp con datos del formulario
+const handleConfirmOrder = (formData) => {
+  // Construir mensaje con datos del cliente
+  let message = '*🎨 NUEVO PEDIDO - PLAYERAS PERSONALIZADAS*\n\n';
   
+  message += '*📋 DATOS DEL CLIENTE:*\n';
+  message += `• Nombre: ${formData.nombre}\n`;
+  message += `• Teléfono: ${formData.telefono}\n`;
+  message += `• Email: ${formData.email}\n\n`;
+  
+  message += '*📦 DIRECCIÓN DE ENVÍO:*\n';
+  message += `• Dirección: ${formData.direccion}\n`;
+  message += `• Ciudad: ${formData.ciudad}\n`;
+  message += `• Estado: ${formData.estado}\n`;
+  message += `• C.P.: ${formData.codigoPostal}\n\n`;
+  
+  message += '*👕 PRODUCTOS:*\n';
+  cart.forEach((item, index) => {
+    message += `\n*Playera ${index + 1}:*\n`;
+    message += `• Color: ${item.color === 'white' ? 'Blanca' : 'Negra'}\n`;
+    message += `• Diseño: ${
+      item.frontImage && item.backImage
+        ? 'Frente y Atrás'
+        : item.frontImage
+        ? 'Solo Frente'
+        : 'Solo Atrás'
+    }\n`;
+    message += `• Precio: $${item.price.toFixed(2)} MXN\n`;
+  });
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    message += `*TOTAL: ${total.toFixed(2)} MXN*\n\n`;
+    message += '_Las imágenes de los diseños se enviarán a continuación._';
+
+    // Codificar mensaje para URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Abrir WhatsApp
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    window.open(whatsappURL, '_blank');
+
+    // Limpiar carrito y cerrar modales
+  setCart([]);
+  setIsCheckoutOpen(false);
+  
+  // Opcional: Mostrar mensaje de confirmación
+  alert('¡Pedido enviado! Te contactaremos pronto por WhatsApp.');
+  };
 
   return (
-    <div
+    <div 
       className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -190,29 +209,23 @@ export default function App() {
       <Cart
         cart={cart}
         onRemoveItem={handleRemoveFromCart}
-        onCheckout={handleCheckout}
+        onCheckout={handleCheckout}  // ⬅️ CAMBIAR onWhatsAppOrder por onCheckout
         isOpen={isCartOpen}
         onToggle={() => setIsCartOpen(!isCartOpen)}
       />
+
       {/* Modal de Checkout */}
       {isCheckoutOpen && (
         <CheckoutForm
           cart={cart}
           onClose={() => setIsCheckoutOpen(false)}
-          onSubmit={handlePayment}
+          onSubmit={handleConfirmOrder}
         />
       )}
 
-      {/* Modal de Éxito */}
-      {showSuccess && (
-        <PaymentSuccess
-          orderNumber={orderNumber}
-          onClose={handleCloseSuccess}
-        />
-      )}
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 mb-2 text-center">
-          🎨 Canelito Design 😺
+          🎨 Kinelo design
         </h1>
         <p className="text-gray-600 mb-8 text-center">
           Sube tu diseño y visualízalo en tiempo real - ¡Frente y Atrás!
@@ -221,26 +234,32 @@ export default function App() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Panel de Controles */}
           <div className="bg-white rounded-2xl shadow-xl p-6 space-y-6">
-            <ColorSelector
-              shirtColor={shirtColor}
-              setShirtColor={setShirtColor}
+            <ColorSelector 
+              shirtColor={shirtColor} 
+              setShirtColor={setShirtColor} 
             />
-
-            <ImageUploader onImageUpload={setCurrentImage} side={currentSide} />
+            
+            <ImageUploader 
+              onImageUpload={setCurrentImage}
+              side={currentSide}
+            />
 
             {currentImage && (
               <>
-                <SizeControl
-                  imageSize={currentSize}
-                  setImageSize={setCurrentSize}
+                <SizeControl 
+                  imageSize={currentSize} 
+                  setImageSize={setCurrentSize} 
                 />
 
-                <PositionControl
-                  imagePosition={currentPosition}
-                  setImagePosition={setCurrentPosition}
+                <PositionControl 
+                  imagePosition={currentPosition} 
+                  setImagePosition={setCurrentPosition} 
                 />
 
-                <ResetButton onReset={handleReset} currentSide={currentSide} />
+                <ResetButton 
+                  onReset={handleReset}
+                  currentSide={currentSide}
+                />
               </>
             )}
 
@@ -268,23 +287,15 @@ export default function App() {
               </h3>
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      frontImage ? "bg-green-500" : "bg-gray-300"
-                    }`}
-                  ></span>
+                  <span className={`w-3 h-3 rounded-full ${frontImage ? 'bg-green-500' : 'bg-gray-300'}`}></span>
                   <span className="text-gray-600">
-                    Frente: {frontImage ? "✓ Diseño agregado" : "Sin diseño"}
+                    Frente: {frontImage ? '✓ Diseño agregado' : 'Sin diseño'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      backImage ? "bg-green-500" : "bg-gray-300"
-                    }`}
-                  ></span>
+                  <span className={`w-3 h-3 rounded-full ${backImage ? 'bg-green-500' : 'bg-gray-300'}`}></span>
                   <span className="text-gray-600">
-                    Atrás: {backImage ? "✓ Diseño agregado" : "Sin diseño"}
+                    Atrás: {backImage ? '✓ Diseño agregado' : 'Sin diseño'}
                   </span>
                 </div>
               </div>

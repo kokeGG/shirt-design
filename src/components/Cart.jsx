@@ -100,9 +100,13 @@ export default function Cart({ cart, onRemoveItem, onCheckout, isOpen, onToggle 
 
                   <button
                     onClick={onCheckout}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-lg transition-colors"
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    Proceder al Pago
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 11.75A.75.75 0 019.75 11h4.5a.75.75 0 010 1.5h-4.5A.75.75 0 019 11.75zM9.75 14a.75.75 0 000 1.5h2.5a.75.75 0 000-1.5h-2.5z"/>
+                      <path fillRule="evenodd" d="M3 5.75C3 4.784 3.784 4 4.75 4h14.5c.966 0 1.75.784 1.75 1.75v12.5A1.75 1.75 0 0119.25 20H4.75A1.75 1.75 0 013 18.25V5.75zm1.75-.25a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V5.75a.25.25 0 00-.25-.25H4.75z"/>
+                    </svg>
+                    Continuar con el Pedido
                   </button>
                 </>
               )}
