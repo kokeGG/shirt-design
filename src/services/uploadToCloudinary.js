@@ -1,3 +1,4 @@
+//uploadToCloudinary.js
 export const uploadToCloudinary = async (base64Data) => {
   const CLOUD_NAME = "dvpih7hxa";
   const UPLOAD_PRESET = "ml_default";

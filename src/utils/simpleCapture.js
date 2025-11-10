@@ -1,3 +1,4 @@
+//simpleCapture.js
 export const captureCartPreviews = async (cart) => {
   const previews = [];
 

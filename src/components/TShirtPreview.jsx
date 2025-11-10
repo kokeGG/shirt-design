@@ -1,4 +1,4 @@
-import React from 'react';
+//TshirtPreview.jsx
 import { RotateCw } from 'lucide-react';
 
 export default function TShirtPreview({

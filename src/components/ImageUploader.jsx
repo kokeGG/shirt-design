@@ -1,3 +1,4 @@
+//ImageUploader.jsx
 import React, { useState } from 'react';
 import { Upload, Scissors, Loader } from 'lucide-react';
 

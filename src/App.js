@@ -12,6 +12,7 @@ import CheckoutForm from './components/CheckoutForm';
 import { sendOrderEmail } from './services/emailService';
 import { openWhatsAppWithOrder } from './services/whatsappService';
 import { captureCartPreviews } from './utils/simpleCapture';
+import { captureAllPreviews } from './utils/advancedCapture';
 
 export default function App() {
   // TU NÚMERO DE WHATSAPP (formato internacional sin +)
@@ -154,99 +155,51 @@ export default function App() {
     setIsCheckoutOpen(true);
   };
 
-  // Función para enviar pedido por WhatsApp con datos del formulario
-// const handleConfirmOrder = (formData) => {
-//   // Construir mensaje con datos del cliente
-//   let message = '*🎨 NUEVO PEDIDO - PLAYERAS PERSONALIZADAS*\n\n';
-  
-//   message += '*📋 DATOS DEL CLIENTE:*\n';
-//   message += `• Nombre: ${formData.nombre}\n`;
-//   message += `• Teléfono: ${formData.telefono}\n`;
-//   message += `• Email: ${formData.email}\n\n`;
-  
-//   message += '*📦 DIRECCIÓN DE ENVÍO:*\n';
-//   message += `• Dirección: ${formData.direccion}\n`;
-//   message += `• Ciudad: ${formData.ciudad}\n`;
-//   message += `• Estado: ${formData.estado}\n`;
-//   message += `• C.P.: ${formData.codigoPostal}\n\n`;
-  
-//   message += '*👕 PRODUCTOS:*\n';
-//   cart.forEach((item, index) => {
-//     message += `\n*Playera ${index + 1}:*\n`;
-//     message += `• Color: ${item.color === 'white' ? 'Blanca' : 'Negra'}\n`;
-//     message += `• Diseño: ${
-//       item.frontImage && item.backImage
-//         ? 'Frente y Atrás'
-//         : item.frontImage
-//         ? 'Solo Frente'
-//         : 'Solo Atrás'
-//     }\n`;
-//     message += `• Precio: $${item.price.toFixed(2)} MXN\n`;
-//   });
-
-//     const total = cart.reduce((sum, item) => sum + item.price, 0);
-//     message += `*TOTAL: ${total.toFixed(2)} MXN*\n\n`;
-//     message += '_Las imágenes de los diseños se enviarán a continuación._';
-
-//     // Codificar mensaje para URL
-//     const encodedMessage = encodeURIComponent(message);
-    
-//     // Abrir WhatsApp
-//     const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-//     window.open(whatsappURL, '_blank');
-
-//     // Limpiar carrito y cerrar modales
-//   setCart([]);
-//   setIsCheckoutOpen(false);
-  
-//   // Opcional: Mostrar mensaje de confirmación
-//   alert('¡Pedido enviado! Te contactaremos pronto por WhatsApp.');
-//   };
-
-// Reemplaza tu función handleConfirmOrder con esta:
 const handleConfirmOrder = async (formData) => {
   try {
-    // Mostrar loading
     const loadingAlert = document.createElement('div');
     loadingAlert.innerHTML = `
       <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
                   background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
                   z-index: 10000; text-align: center;">
         <div style="font-size: 24px; margin-bottom: 15px;">📧</div>
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Enviando pedido...</div>
-        <div style="font-size: 14px; color: #666;">Por favor espera un momento</div>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Generando imágenes...</div>
+        <div style="font-size: 14px; color: #666;">Esto puede tomar unos segundos</div>
       </div>
       <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999;"></div>
     `;
     document.body.appendChild(loadingAlert);
 
-    // 1. Generar imágenes de vista previa
-    console.log('Generando previews...');
-    const previews = await captureCartPreviews(cart);
-    console.log('Previews generadas:', previews.length);
+    // 1. Generar TODAS las imágenes (simple, completa, diseños limpios)
+    // console.log('Generando todas las previews...');
+    const allPreviews = await captureAllPreviews(cart);
+    // console.log('Previews generadas:', allPreviews);
 
-    // 2. Enviar email con las imágenes
-    console.log('Enviando email...');
-    const emailResult = await sendOrderEmail(formData, cart, previews);
+    // Actualizar mensaje de loading
+    loadingAlert.querySelector('div:nth-child(2)').textContent = 'Enviando email...';
+
+    // 2. Enviar email con todas las imágenes
+    const emailResult = await sendOrderEmail(formData, cart, allPreviews);
     
-    // Remover loading
     document.body.removeChild(loadingAlert);
 
     if (emailResult.success) {
-      // 3. Abrir WhatsApp con el mensaje
-      console.log('Abriendo WhatsApp...');
-      openWhatsAppWithOrder(WHATSAPP_NUMBER, formData, cart, emailResult.imageUrls);
+      const whatsappImageUrls = Object.values(emailResult.organizedUrls)
+    .map(item => item.full)  // Solo las imágenes completas
+      // 3. Abrir WhatsApp
+      openWhatsAppWithOrder(WHATSAPP_NUMBER, formData, cart, whatsappImageUrls);
 
-      // 4. Limpiar y cerrar
       setCart([]);
       setIsCheckoutOpen(false);
 
-      // Mostrar mensaje de éxito
       alert(
         '✅ ¡Pedido procesado exitosamente!\n\n' +
-        '📧 Hemos recibido tu pedido por email con todas las imágenes.\n' +
-        '💬 WhatsApp se ha abierto con tu pedido listo para enviar.\n\n' +
-        '👉 Solo da click en "Enviar" en WhatsApp para confirmar.\n\n' +
+        '📧 Email enviado con:\n' +
+        '   • Resumen de cada playera\n' +
+        '   • Vista previa completa\n' +
+        '   • Diseños limpios (frente y/o atrás)\n\n' +
+        '💬 WhatsApp abierto con el resumen.\n\n' +
+        '👉 Solo da click en "Enviar" en WhatsApp.\n\n' +
         '¡Te contactaremos pronto!'
       );
     } else {
@@ -254,17 +207,16 @@ const handleConfirmOrder = async (formData) => {
     }
 
   } catch (error) {
-    console.error('Error en handleConfirmOrder:', error);
+    console.error('Error:', error);
     
-    // Remover loading si existe
     const loadingElement = document.querySelector('[style*="z-index: 10000"]');
     if (loadingElement && loadingElement.parentElement) {
       loadingElement.parentElement.remove();
     }
 
     alert(
-      '❌ Hubo un error al procesar tu pedido.\n\n' +
-      'Por favor, intenta nuevamente o contacta directamente por WhatsApp.\n\n' +
+      '❌ Error al procesar el pedido.\n\n' +
+      'Por favor, intenta nuevamente.\n\n' +
       'Error: ' + error.message
     );
   }

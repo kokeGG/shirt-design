@@ -1,3 +1,4 @@
+//emailService.js
 import emailjs from '@emailjs/browser';
 import { uploadToCloudinary } from "./uploadToCloudinary";
 
@@ -9,24 +10,111 @@ const EMAILJS_PUBLIC_KEY = 'H1PU8wKQ9wK243ByC';
 // Inicializar EmailJS
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
-
-
-
-export const sendOrderEmail = async (formData, cart, previewImages) => {
+export const sendOrderEmail = async (formData, cart, allPreviews) => {
   try {
-    // Subir cada imagen y obtener URL
-    const imageUrls = await Promise.all(
-      previewImages.map(img => uploadToCloudinary(img.dataUrl))
+    // Subir todas las imágenes a Cloudinary
+    const uploadPromises = [];
+    
+    for (let i = 0; i < allPreviews.length; i++) {
+      const preview = allPreviews[i];
+      
+      // Imagen simple
+      if (preview.simple) {
+        uploadPromises.push({
+          type: 'simple',
+          index: i,
+          promise: uploadToCloudinary(preview.simple)
+        });
+      }
+      
+      // Vista previa completa
+      if (preview.full) {
+        uploadPromises.push({
+          type: 'full',
+          index: i,
+          promise: uploadToCloudinary(preview.full)
+        });
+      }
+      
+      // Diseño frente
+      if (preview.designFront) {
+        uploadPromises.push({
+          type: 'designFront',
+          index: i,
+          promise: uploadToCloudinary(preview.designFront)
+        });
+      }
+      
+      // Diseño atrás
+      if (preview.designBack) {
+        uploadPromises.push({
+          type: 'designBack',
+          index: i,
+          promise: uploadToCloudinary(preview.designBack)
+        });
+      }
+    }
+
+    // Esperar todas las subidas
+    const uploadResults = await Promise.all(
+      uploadPromises.map(async (item) => ({
+        type: item.type,
+        index: item.index,
+        url: await item.promise
+      }))
     );
 
-    // Construcción del texto del pedido como antes
+    // Organizar URLs por tipo e índice
+    const organizedUrls = {};
+    uploadResults.forEach(result => {
+      if (!organizedUrls[result.index]) {
+        organizedUrls[result.index] = {};
+      }
+      organizedUrls[result.index][result.type] = result.url;
+    });
+
+    // Construir HTML para el email
+    let imagesHtml = '';
+    
+    for (let i = 0; i < cart.length; i++) {
+      const item = cart[i];
+      const urls = organizedUrls[i];
+      
+      imagesHtml += `
+        <div style="margin-bottom: 40px; border: 2px solid #e5e7eb; border-radius: 10px; padding: 20px; background: #f9fafb;">
+          <h3 style="color: #1f2937; margin-bottom: 15px;">
+            📦 Playera #${i + 1} - ${item.color === 'white' ? 'Blanca' : 'Negra'} - $${item.price} MXN
+          </h3>
+          
+          <h4 style="color: #374151; margin: 15px 0 10px 0;">1️⃣ Resumen:</h4>
+          <img src="${urls.simple}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;" />
+          
+          <h4 style="color: #374151; margin: 15px 0 10px 0;">2️⃣ Vista Previa Completa (Playera + Diseño):</h4>
+          <img src="${urls.full}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;" />
+          
+          ${urls.designFront ? `
+            <h4 style="color: #374151; margin: 15px 0 10px 0;">3️⃣ Diseño Frente (Limpio):</h4>
+            <img src="${urls.designFront}" style="max-width: 400px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #ffffff 10px, #ffffff 20px);" />
+          ` : ''}
+          
+          ${urls.designBack ? `
+            <h4 style="color: #374151; margin: 15px 0 10px 0;">4️⃣ Diseño Atrás (Limpio):</h4>
+            <img src="${urls.designBack}" style="max-width: 400px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #ffffff 10px, #ffffff 20px);" />
+          ` : ''}
+          
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+        </div>
+      `;
+    }
+
+    // Construir detalles del pedido
     const orderDetails = cart.map((item, index) => {
       const hasDesign = item.frontImage && item.backImage 
         ? 'Frente y Atrás' 
         : item.frontImage 
         ? 'Solo Frente' 
         : 'Solo Atrás';
-
+      
       return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
     }).join('\n');
 
@@ -36,14 +124,10 @@ export const sendOrderEmail = async (formData, cart, previewImages) => {
       customer_name: formData.nombre,
       customer_phone: formData.telefono,
       customer_email: formData.email,
-      customer_address: `${formData.direccion}, ${formData.ciudad}, ${formData.estado}, C.P. ${formData.codigoPostal}`,
       order_details: orderDetails,
       total: total.toFixed(2),
-      image_urls_html: imageUrls
-    .map(url => `<img src="${url}" style="max-width: 350px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px;" />`)
-    .join('')
+      image_urls_html: imagesHtml
     };
-
 
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
@@ -51,8 +135,8 @@ export const sendOrderEmail = async (formData, cart, previewImages) => {
       templateParams
     );
 
-    console.log('Email enviado exitosamente:', response);
-    return { success: true, response, imageUrls };
+    // console.log('Email enviado exitosamente:', response);
+    return { success: true, response, organizedUrls };
 
   } catch (error) {
     console.error('Error enviando email:', error);
@@ -60,23 +144,26 @@ export const sendOrderEmail = async (formData, cart, previewImages) => {
   }
 };
 
-
 // export const sendOrderEmail = async (formData, cart, previewImages) => {
 //   try {
-//     // Construir detalles del pedido
+//     // Subir cada imagen y obtener URL
+//     const imageUrls = await Promise.all(
+//       previewImages.map(img => uploadToCloudinary(img.dataUrl))
+//     );
+
+//     // Construcción del texto del pedido como antes
 //     const orderDetails = cart.map((item, index) => {
 //       const hasDesign = item.frontImage && item.backImage 
 //         ? 'Frente y Atrás' 
 //         : item.frontImage 
 //         ? 'Solo Frente' 
 //         : 'Solo Atrás';
-      
+
 //       return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
 //     }).join('\n');
 
 //     const total = cart.reduce((sum, item) => sum + item.price, 0);
 
-//     // Preparar parámetros del email
 //     const templateParams = {
 //       customer_name: formData.nombre,
 //       customer_phone: formData.telefono,
@@ -84,14 +171,12 @@ export const sendOrderEmail = async (formData, cart, previewImages) => {
 //       customer_address: `${formData.direccion}, ${formData.ciudad}, ${formData.estado}, C.P. ${formData.codigoPostal}`,
 //       order_details: orderDetails,
 //       total: total.toFixed(2),
-//       // Las imágenes se envían como attachments
-//       attachments: previewImages.map((img, index) => ({
-//         name: img.filename,
-//         data: img.dataUrl.split(',')[1], // Base64 sin el prefijo
-//       })),
+//       image_urls_html: imageUrls
+//     .map(url => `<img src="${url}" style="max-width: 350px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px;" />`)
+//     .join('')
 //     };
 
-//     // Enviar email
+
 //     const response = await emailjs.send(
 //       EMAILJS_SERVICE_ID,
 //       EMAILJS_TEMPLATE_ID,
@@ -99,7 +184,7 @@ export const sendOrderEmail = async (formData, cart, previewImages) => {
 //     );
 
 //     console.log('Email enviado exitosamente:', response);
-//     return { success: true, response };
+//     return { success: true, response, imageUrls };
 
 //   } catch (error) {
 //     console.error('Error enviando email:', error);
