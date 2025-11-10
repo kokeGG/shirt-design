@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/shirt-design/static/css/main.08e73370.css",
-    "main.js": "/shirt-design/static/js/main.a8cb48ad.js",
+    "main.css": "/shirt-design/static/css/main.187d1dd3.css",
+    "main.js": "/shirt-design/static/js/main.89a3022c.js",
     "static/js/453.3cab3163.chunk.js": "/shirt-design/static/js/453.3cab3163.chunk.js",
     "index.html": "/shirt-design/index.html",
-    "main.08e73370.css.map": "/shirt-design/static/css/main.08e73370.css.map",
-    "main.a8cb48ad.js.map": "/shirt-design/static/js/main.a8cb48ad.js.map",
+    "main.187d1dd3.css.map": "/shirt-design/static/css/main.187d1dd3.css.map",
+    "main.89a3022c.js.map": "/shirt-design/static/js/main.89a3022c.js.map",
     "453.3cab3163.chunk.js.map": "/shirt-design/static/js/453.3cab3163.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.08e73370.css",
-    "static/js/main.a8cb48ad.js"
+    "static/css/main.187d1dd3.css",
+    "static/js/main.89a3022c.js"
   ]
 }
