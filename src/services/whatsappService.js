@@ -101,10 +101,12 @@ export const openWhatsAppWithOrder = (whatsappNumber, formData, cart, imageUrls)
         ? 'Solo Frente'
         : 'Solo Atrás'
     }\n`;
-    message += `• Precio: $${item.price.toFixed(2)} MXN\n`;
+    message += `• Talla: ${item.size}\n`;
+    message += `• Cantidad: ${item.quantity}\n`;
+    message += `• Precio: $${item.quantity * item.price.toFixed(2)} MXN\n`;
   });
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   message += `\n*💰 TOTAL: $${total.toFixed(2)} MXN*\n\n`;
   message += `\n*🖼 DISEÑOS:* \n`;
   imageUrls.forEach((url, index) => {

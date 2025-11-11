@@ -24,7 +24,7 @@ export const captureCartPreviews = async (cart) => {
     // Información
     ctx.font = '20px Arial';
     ctx.fillText(`Color: ${item.color === 'white' ? 'Blanca' : 'Negra'}`, canvas.width / 2, 75);
-    ctx.fillText(`Precio: $${item.price} MXN`, canvas.width / 2, 105);
+    ctx.fillText(`Precio: $${item.price * item.quantity} MXN`, canvas.width / 2, 105);
 
     try {
       // Cargar y dibujar imágenes

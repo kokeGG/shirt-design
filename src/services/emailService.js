@@ -83,8 +83,15 @@ export const sendOrderEmail = async (formData, cart, allPreviews) => {
       imagesHtml += `
         <div style="margin-bottom: 40px; border: 2px solid #e5e7eb; border-radius: 10px; padding: 20px; background: #f9fafb;">
           <h3 style="color: #1f2937; margin-bottom: 15px;">
-            📦 Playera #${i + 1} - ${item.color === 'white' ? 'Blanca' : 'Negra'} - $${item.price} MXN
+            📦 Playera #${i + 1} - ${item.color === 'white' ? 'Blanca' : 'Negra'} - $${item.price * item.quantity} MXN
           </h3>
+
+          <p style="font-size: 15px; color: #374151; margin-bottom: 10px;">
+            <strong>Talla:</strong> ${item.size} 
+            &nbsp;|&nbsp;
+            <strong>Cantidad:</strong> ${item.quantity}
+          </p>
+
           
           <h4 style="color: #374151; margin: 15px 0 10px 0;">1️⃣ Resumen:</h4>
           <img src="${urls.simple}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;" />
@@ -108,17 +115,31 @@ export const sendOrderEmail = async (formData, cart, allPreviews) => {
     }
 
     // Construir detalles del pedido
-    const orderDetails = cart.map((item, index) => {
-      const hasDesign = item.frontImage && item.backImage 
-        ? 'Frente y Atrás' 
-        : item.frontImage 
-        ? 'Solo Frente' 
-        : 'Solo Atrás';
+    // const orderDetails = cart.map((item, index) => {
+    //   const hasDesign = item.frontImage && item.backImage 
+    //     ? 'Frente y Atrás' 
+    //     : item.frontImage 
+    //     ? 'Solo Frente' 
+    //     : 'Solo Atrás';
       
-      return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
-    }).join('\n');
+    //   return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
+    // }).join('\n');
 
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const orderDetails = cart.map((item, index) => {
+    const hasDesign = item.frontImage && item.backImage 
+      ? 'Frente y Atrás' 
+      : item.frontImage 
+      ? 'Solo Frente' 
+      : 'Solo Atrás';
+    
+      return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'}
+      • Diseño: ${hasDesign}
+      • Talla: ${item.size}
+      • Cantidad: ${item.quantity}
+      • Subtotal: $${item.price * item.quantity} MXN`;
+    }).join('\n\n');
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     const templateParams = {
       customer_name: formData.nombre,

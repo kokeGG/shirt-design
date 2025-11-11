@@ -63,7 +63,7 @@ export const captureFullPreview = async (item, index) => {
     ctx.textAlign = 'center';
     ctx.fillText(`Playera #${index + 1} - ${item.color === 'white' ? 'Blanca' : 'Negra'}`, 400, 520);
     ctx.font = '18px Arial';
-    ctx.fillText(`Precio: $${item.price} MXN`, 400, 550);
+    ctx.fillText(`Precio: $${item.price * item.quantity} MXN`, 400, 550);
 
     return canvas.toDataURL('image/png');
   } catch (error) {
@@ -114,7 +114,7 @@ export const captureSimplePreview = async (item, index) => {
 
   ctx.font = '20px Arial';
   ctx.fillText(`Color: ${item.color === 'white' ? 'Blanca' : 'Negra'}`, canvas.width / 2, 75);
-  ctx.fillText(`Precio: $${item.price} MXN`, canvas.width / 2, 105);
+  ctx.fillText(`Precio: $${item.price * item.quantity} MXN`, canvas.width / 2, 105);
 
   try {
     let yPosition = 150;

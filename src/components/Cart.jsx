@@ -2,7 +2,7 @@ import React from 'react';
 import { ShoppingCart, X, Trash2 } from 'lucide-react';
 
 export default function Cart({ cart, onRemoveItem, onCheckout, isOpen, onToggle }) {
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
     <>
@@ -82,8 +82,14 @@ export default function Cart({ cart, onRemoveItem, onCheckout, isOpen, onToggle 
                                 ? 'Solo frente'
                                 : 'Solo atrás'}
                             </p>
+                            <p className="font-semibold text-gray-800">
+                              Talla {item.size}
+                            </p>
+                            <p className="font-semibold text-gray-800">
+                              Cantidad: {item.quantity}
+                            </p>
                             <p className="text-lg font-bold text-green-600 mt-2">
-                              ${item.price.toFixed(2)} MXN
+                              ${ item.quantity * item.price.toFixed(2)} MXN
                             </p>
                           </div>
                         </div>
