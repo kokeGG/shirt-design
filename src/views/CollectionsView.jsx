@@ -10,7 +10,7 @@ export default function CollectionsView({ onAddToCart }) {
       description: 'Playera de algodón 100%, corte clásico',
       price: 150,
       stock: 25,
-      image: `${process.env.PUBLIC_URL}/images/catalog/playera-negra.jpg`,
+      image: `${process.env.PUBLIC_URL}/images/playera-negra-frente.jpeg`,
       color: 'black',
       type: 'catalog'
     },
@@ -20,30 +20,30 @@ export default function CollectionsView({ onAddToCart }) {
       description: 'Playera de algodón 100%, corte clásico',
       price: 150,
       stock: 30,
-      image: `${process.env.PUBLIC_URL}/images/catalog/playera-blanca.jpg`,
+      image: `${process.env.PUBLIC_URL}/images/playera-blanca-frente.jpeg`,
       color: 'white',
       type: 'catalog'
     },
-    {
-      id: 'cat-003',
-      name: 'Playera Logo Kinelo',
-      description: 'Diseño exclusivo con logo frontal',
-      price: 200,
-      stock: 8,
-      image: `${process.env.PUBLIC_URL}/images/catalog/playera-logo.jpg`,
-      color: 'black',
-      type: 'catalog'
-    },
-    {
-      id: 'cat-004',
-      name: 'Playera Edición Especial',
-      description: 'Diseño limitado, 100% algodón premium',
-      price: 250,
-      stock: 0,
-      image: `${process.env.PUBLIC_URL}/images/catalog/playera-especial.jpg`,
-      color: 'white',
-      type: 'catalog'
-    },
+    // {
+    //   id: 'cat-003',
+    //   name: 'Playera Logo Kinelo',
+    //   description: 'Diseño exclusivo con logo frontal',
+    //   price: 200,
+    //   stock: 8,
+    //   // image: `${process.env.PUBLIC_URL}/images/catalog/playera-logo.jpg`,
+    //   color: 'black',
+    //   type: 'catalog'
+    // },
+    // {
+    //   id: 'cat-004',
+    //   name: 'Playera Edición Especial',
+    //   description: 'Diseño limitado, 100% algodón premium',
+    //   price: 250,
+    //   stock: 0,
+    //   image: `${process.env.PUBLIC_URL}/images/catalog/playera-especial.jpg`,
+    //   color: 'white',
+    //   type: 'catalog'
+    // },
   ];
 
   return (
