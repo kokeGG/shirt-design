@@ -398,7 +398,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const BASE_PRICE = 120;
+  const BASE_PRICE = 230;
 
   const currentImage = currentSide === 'front' ? frontImage : backImage;
   const currentSize = currentSide === 'front' ? frontSize : backSize;
@@ -603,8 +603,12 @@ const handleConfirmOrder = async (formData) => {
           className="mx-auto mb-4 w-32"
         />
         <p className="text-gray-600 mb-8 text-center">
-          Diseña tu playera o elige de nuestro catálogo
+          Diseña tu playera
         </p>
+
+        {/* <p className="text-gray-600 mb-8 text-center">
+          Diseña tu playera o elige de nuestro catálogo
+        </p> */}
 
         <Navigation currentView={currentView} setCurrentView={setCurrentView} />
 

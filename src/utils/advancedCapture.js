@@ -1,3 +1,4 @@
+
 export const captureFullPreview = async (item, index) => {
   const canvas = document.createElement('canvas');
   canvas.width = 800;

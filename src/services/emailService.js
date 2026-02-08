@@ -1,4 +1,3 @@
-//emailService.js
 import emailjs from '@emailjs/browser';
 import { uploadToCloudinary } from "./uploadToCloudinary";
 
@@ -114,17 +113,6 @@ export const sendOrderEmail = async (formData, cart, allPreviews) => {
       `;
     }
 
-    // Construir detalles del pedido
-    // const orderDetails = cart.map((item, index) => {
-    //   const hasDesign = item.frontImage && item.backImage 
-    //     ? 'Frente y Atrás' 
-    //     : item.frontImage 
-    //     ? 'Solo Frente' 
-    //     : 'Solo Atrás';
-      
-    //   return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
-    // }).join('\n');
-
     const orderDetails = cart.map((item, index) => {
     const hasDesign = item.frontImage && item.backImage 
       ? 'Frente y Atrás' 
@@ -164,52 +152,4 @@ export const sendOrderEmail = async (formData, cart, allPreviews) => {
     return { success: false, error };
   }
 };
-
-// export const sendOrderEmail = async (formData, cart, previewImages) => {
-//   try {
-//     // Subir cada imagen y obtener URL
-//     const imageUrls = await Promise.all(
-//       previewImages.map(img => uploadToCloudinary(img.dataUrl))
-//     );
-
-//     // Construcción del texto del pedido como antes
-//     const orderDetails = cart.map((item, index) => {
-//       const hasDesign = item.frontImage && item.backImage 
-//         ? 'Frente y Atrás' 
-//         : item.frontImage 
-//         ? 'Solo Frente' 
-//         : 'Solo Atrás';
-
-//       return `Playera ${index + 1}: ${item.color === 'white' ? 'Blanca' : 'Negra'} - ${hasDesign} - $${item.price} MXN`;
-//     }).join('\n');
-
-//     const total = cart.reduce((sum, item) => sum + item.price, 0);
-
-//     const templateParams = {
-//       customer_name: formData.nombre,
-//       customer_phone: formData.telefono,
-//       customer_email: formData.email,
-//       customer_address: `${formData.direccion}, ${formData.ciudad}, ${formData.estado}, C.P. ${formData.codigoPostal}`,
-//       order_details: orderDetails,
-//       total: total.toFixed(2),
-//       image_urls_html: imageUrls
-//     .map(url => `<img src="${url}" style="max-width: 350px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px;" />`)
-//     .join('')
-//     };
-
-
-//     const response = await emailjs.send(
-//       EMAILJS_SERVICE_ID,
-//       EMAILJS_TEMPLATE_ID,
-//       templateParams
-//     );
-
-//     console.log('Email enviado exitosamente:', response);
-//     return { success: true, response, imageUrls };
-
-//   } catch (error) {
-//     console.error('Error enviando email:', error);
-//     return { success: false, error };
-//   }
-// };
 
