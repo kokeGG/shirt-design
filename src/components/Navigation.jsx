@@ -16,7 +16,7 @@ export default function Navigation({ currentView, setCurrentView }) {
         Personalizar
       </button>
       
-      {/* <button
+      <button
         onClick={() => setCurrentView('collections')}
         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
           currentView === 'collections'
@@ -26,7 +26,7 @@ export default function Navigation({ currentView, setCurrentView }) {
       >
         <ShoppingBag className="w-5 h-5" />
         Colecciones
-      </button> */}
+      </button>
     </div>
   );
 }

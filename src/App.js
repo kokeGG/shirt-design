@@ -372,6 +372,8 @@ import CheckoutForm from './components/CheckoutForm';
 import { sendOrderEmail } from './services/emailService';
 import { openWhatsAppWithOrder } from './services/whatsappService';
 import { captureAllPreviews } from './utils/advancedCapture';
+import { createShirtComposite } from './utils/createShirtComposite';
+
 
 export default function App() {
   const WHATSAPP_NUMBER = '527131587587';
@@ -460,36 +462,59 @@ export default function App() {
 
   const handleMouseUp = () => setIsDragging(false);
 
-  // Agregar al carrito (personalizado)
-  const handleAddToCart = () => {
-    const newItem = {
-      id: Date.now(),
-      type: 'custom',
-      color: shirtColor,
-      frontImage,
-      backImage,
-      frontSize,
-      frontPosition,
-      backSize,
-      backPosition,
-      price: BASE_PRICE,
-      quantity,
-      size,
-      totalPrice: BASE_PRICE * quantity
-    };
+const handleAddToCart = async () => {
+  const frontComposite = frontImage
+    ? await createShirtComposite({
+        shirtColor,
+        side: 'front',
+        designImage: frontImage,
+        designSize: frontSize,
+        designPosition: frontPosition
+      })
+    : null;
 
-    setCart([...cart, newItem]);
-    setIsCartOpen(true);
+  const backComposite = backImage
+    ? await createShirtComposite({
+        shirtColor,
+        side: 'back',
+        designImage: backImage,
+        designSize: backSize,
+        designPosition: backPosition
+      })
+    : null;
 
-    // Limpiar diseño
-    setFrontImage(null);
-    setBackImage(null);
-    setFrontSize(150);
-    setBackSize(150);
-    setFrontPosition({ x: 50, y: 40 });
-    setBackPosition({ x: 50, y: 40 });
-    setQuantity(1);
+  const newItem = {
+    id: Date.now(),
+    type: 'custom',
+    color: shirtColor,
+
+    // 🔥 IMÁGENES FINALES YA COMPUESTAS
+    frontComposite,
+    backComposite,
+
+    // mantenemos los diseños limpios
+    frontImage,
+    backImage,
+
+    price: BASE_PRICE,
+    quantity,
+    size,
+    totalPrice: BASE_PRICE * quantity
   };
+
+  setCart([...cart, newItem]);
+  setIsCartOpen(true);
+
+  // Reset
+  setFrontImage(null);
+  setBackImage(null);
+  setFrontSize(150);
+  setBackSize(150);
+  setFrontPosition({ x: 50, y: 40 });
+  setBackPosition({ x: 50, y: 40 });
+  setQuantity(1);
+};
+
 
   // Agregar al carrito (catálogo)
   const handleAddCatalogToCart = (catalogItem) => {
